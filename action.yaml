@@ -1,7 +1,7 @@
 name: 'Bump Chart Version'
 description: 'Automatically Bump Helm Chart Version'
 inputs:
-  chart-name:
+  chart_name:
     description: 'Chart to be bumped'
     required: true
   bump_strategy:

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -env
+set -e
 
 python -c 'from auto_bump import main; main.main()'
 

@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY auto_bump ./
 
-COPY ./requirements.txt ./
+COPY ./requirements.txt ./requirements.txt
 
 COPY entrypoint.sh ./entrypoint.sh
 

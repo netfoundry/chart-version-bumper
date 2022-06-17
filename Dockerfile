@@ -10,6 +10,6 @@ COPY entrypoint.sh ./entrypoint.sh
 
 RUN python -m pip install --upgrade pip
 
-RUN pip install requirements.txt
+RUN pip install -r requirements.txt
 
 ENTRYPOINT ["./entrypoint.sh"]

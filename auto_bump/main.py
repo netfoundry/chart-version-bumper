@@ -37,6 +37,7 @@ def main(chart_name=chart, bump_strategy=strategy):
 
             elif bump_strategy.upper() == "MAJOR":
                 new_version = "".join("%s." % str(a) for a in increment_major(current_version))
+                print(new_version)
 
             else:
                 raise ValueError("bump_strategy is not correctly set.")

@@ -27,4 +27,4 @@ runs:
         BUMP_STRATEGY: ${{ inputs.bump_strategy }}
         CHART_NAME: ${{ inputs.chart_name }}
       run: |
-        bash $GITHUB_ACTION_PATH/entrypoint.sh
+        python -c 'from auto_bump import main; main.main()'

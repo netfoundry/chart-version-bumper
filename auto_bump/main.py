@@ -10,7 +10,7 @@ from subprocess import run, PIPE, STDOUT
 
 import yaml
 
-from .utils import increment_patch, increment_major, increment_minor
+from auto_bump.utils import increment_patch, increment_major, increment_minor
 
 ACTION_PATH = Path(os.environ["GITHUB_ACTION_PATH"])
 ENV_PATH = ACTION_PATH / ".black-env"

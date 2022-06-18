@@ -52,7 +52,9 @@ if file_path:
     print(file_path)
 
     file = open(file_path, "w+")
-    chart_file = yaml.safe_load(file)
+    f_str = file.read()
+    print(f_str)
+    chart_file = yaml.safe_load(f_str)
 
     if "version" in chart_file:
         current_version = chart_file["version"]

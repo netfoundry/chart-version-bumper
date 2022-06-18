@@ -21,9 +21,7 @@ runs:
         entrypoint="import sys;
         import subprocess;
         from pathlib import Path;
-        
-        MAIN_SCRIPT = Path(r'${GITHUB_ACTION_PATH') / 'auto_bump' / 'main.py';
-        
+        MAIN_SCRIPT = Path(r'${GITHUB_ACTION_PATH}') / 'auto_bump' / 'main.py';
         proc = subprocess.run([sys.executable, str(MAIN_SCRIPT)]);
         sys.exit(proc.returncode)
         "

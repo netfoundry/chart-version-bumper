@@ -49,7 +49,8 @@ short_option = Path(f"./{CHART}/Chart.yml").resolve()
 file_path = long_option if long_option.is_file() else short_option if short_option.is_file() else False
 
 if file_path:
-    print(file_path)
+    print("Chart File Path: %s" % file_path)
+    print(Path(".").resolve())
 
     file = open(file_path, "w+")
     f_str = file.read()

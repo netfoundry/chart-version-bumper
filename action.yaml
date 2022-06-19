@@ -56,7 +56,7 @@ runs:
 
     - name: "Check For Bump"
       id: review
-      if: github.actor != 'first-mate-bot' && steps.chart-changed.outputs.files_changed == 'true'
+      if: github.actor != 'first-mate-bot' && steps.chart-changed.outputs.any_modified == 'true'
       env:
         BUMP_STRATEGY: ${{ inputs.bump_strategy }}
         FIRST_MATE_MESSAGE: |

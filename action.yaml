@@ -32,5 +32,23 @@ runs:
           echo $entrypoint | python3
         fi
     - name: "Check Usage"
-      run: git status
+      env:
+        BUMP_STRATEGY: ${{ inputs.bump_strategy }}
+        FIRST_MATE_MESSAGE: |
+          cat << EOF
+          Bumped Helm Chart Version From "$FIRST_MATE_OLD_VERSION" to "$FIRST_MATE_NEW_VERSION"
+          
+          Changes committed by ${{ github.actor }} in commit: ${{ github.event.after }} altered the Helm Chart.
+          I updated the Chart.yaml file using the "BUMP_STRATEGY" strategy.
+          
+          Signed-off-by: firstmate[bot] <bot@firstmate.dev>
+          EOF
+
+      run: |
+        if [[`git status --porcelain` ]]; then
+          git config --local user.name "first-mate-bot"
+          git config --local user.email "bot@firstmate.dev"
+          git add -A
+          git commit -m "$FIRST_MATE_MESSAGE"
+
       shell: bash

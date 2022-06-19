@@ -61,6 +61,7 @@ if file_path:
 
     if "version" in chart_file:
         current_version = chart_file["version"]
+        os.environ["FIRST_MATE_OLD_VERSION"] = chart_file["version"]
         current_version = [int(v) for v in current_version.split(".")]
 
         if STRATEGY.upper() == "PATCH":
@@ -75,7 +76,10 @@ if file_path:
         else:
             raise ValueError("bump_strategy is not correctly set.")
 
-        print(new_version)
+        print("Version will be bumped to: "
+              "%s" % new_version)
+
+        os.environ["FIRST_MATE_NEW_VERSION"] = new_version
 
         chart_file["version"] = new_version[:-1] if new_version[-1] == "." else new_version
 

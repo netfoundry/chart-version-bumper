@@ -52,7 +52,7 @@ if file_path:
     print("Chart File Path: %s" % file_path)
     print(Path(".").resolve())
 
-    file = open(file_path, "w+")
+    file = open(file_path)
     f_str = file.read()
     print(f_str)
     chart_file = yaml.safe_load(f_str)

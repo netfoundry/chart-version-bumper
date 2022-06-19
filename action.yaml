@@ -22,11 +22,11 @@ runs:
     - uses: actions/checkout@v3
       if: github.actor != 'first-mate-bot'
       with:
-        fetch-depth: 0
+        fetch-depth: '2'
 
     - name: 'Check if Chart Changed'
       if: github.actor != 'first-mate-bot'
-      uses: tj-actions/verify-changed-files@v9.2
+      uses: tj-actions/changed-files@v23
       id: 'chart-changed'
       with:
         files: |
@@ -34,7 +34,7 @@ runs:
 
     - name: "Bump Chart Version"
       id: bump
-      if: github.actor != 'first-mate-bot' && steps.chart-changed.outputs.files_changed == 'true'
+      if: github.actor != 'first-mate-bot' && steps.chart-changed.outputs.any_modified == 'true'
       env:
         BUMP_STRATEGY: ${{ inputs.bump_strategy }}
         CHART_NAME: ${{ inputs.chart_name }}

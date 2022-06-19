@@ -49,13 +49,15 @@ short_option = Path(f"./{CHART}/Chart.yml").resolve()
 file_path = long_option if long_option.is_file() else short_option if short_option.is_file() else False
 
 if file_path:
-    print("Chart File Path: %s" % file_path)
-    print(Path(".").resolve())
+    print("Found Chart file  at the following path:\n"
+          "%s" % file_path)
 
-    file = open(file_path)
-    f_str = file.read()
-    print(f_str)
-    chart_file = yaml.safe_load(f_str)
+    with open(file_path) as in_stream:
+        f_str = in_stream.read()
+        print("Chart Contents:\n"
+              "%s" % f_str)
+        chart_file = yaml.safe_load(f_str)
+        in_stream.close()
 
     if "version" in chart_file:
         current_version = chart_file["version"]
@@ -75,10 +77,11 @@ if file_path:
 
         print(new_version)
 
-        chart_file["version"] = new_version
+        chart_file["version"] = new_version[:-1] if new_version[-1] == "." else new_version
 
-        with open("modified.yml", "w") as out_stream:
+        with open(file_path, "w") as out_stream:
             yaml.dump(chart_file, out_stream, default_flow_style=False, sort_keys=False)
+            out_stream.close()
 
     else:
         raise AttributeError("Helm Chart %s is not properly configured" % CHART)

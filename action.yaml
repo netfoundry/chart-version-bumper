@@ -13,7 +13,10 @@ runs:
   using: composite
   steps:
     - uses: actions/checkout@v3
+      if: github.actor != 'first-mate-bot'
+
     - name: "Run Point"
+      if: github.actor != 'first-mate-bot'
       env:
         BUMP_STRATEGY: ${{ inputs.bump_strategy }}
         CHART_NAME: ${{ inputs.chart_name }}
@@ -31,7 +34,9 @@ runs:
         else
           echo $entrypoint | python3
         fi
+
     - name: "Check Usage"
+      if: github.actor != 'first-mate-bot'
       env:
         BUMP_STRATEGY: ${{ inputs.bump_strategy }}
         FIRST_MATE_MESSAGE: |
@@ -41,7 +46,7 @@ runs:
           Changes committed by ${{ github.actor }} in commit: ${{ github.event.after }} altered the Helm Chart.
           I updated the Chart.yaml file using the "BUMP_STRATEGY" strategy.
           
-          Signed-off-by: firstmate[bot] <bot@firstmate.dev>
+          Signed-off-by: first-mate-bot[bot] <bot@firstmate.dev>
           EOF
 
       run: |

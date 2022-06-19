@@ -1,6 +1,10 @@
 name: 'Bump Chart Version'
 description: 'Automatically Bump Helm Chart Version'
 author: beehivewarrior
+branding:
+  icon: anchor
+  color: blue
+
 inputs:
   chart_name:
     description: 'Chart to be bumped'

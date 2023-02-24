@@ -1,18 +1,18 @@
 name: 'Bump Chart Version'
-description: 'Automatically Bump Helm Chart Version'
+description: Avoids Chart Releaser errors when forgetting to increment the chart version. Works with Chart Releaser {name}-{semver} tags to bump Helm Chart Version if there are chart changes in current branch and release already exists.
 author: beehivewarrior
 branding:
   icon: anchor
   color: blue
 
 inputs:
-  chart_name:
+  chart_dir:
     description: 'Chart to be bumped'
     required: true
   bump_strategy:
-    description: 'How the chart should be bumped'
+    description: '"patch", "minor", or "major": semver magnitude to bump'
     required: false
-    default: 'PATCH'
+    default: patch
 
 outputs:
   version_bumped:
@@ -24,60 +24,65 @@ runs:
 
   steps:
     - uses: actions/checkout@v3
-      if: github.actor != 'first-mate-bot'
       with:
         fetch-depth: '2'
 
     - name: 'Check if Chart Changed'
-      if: github.actor != 'first-mate-bot'
-      uses: tj-actions/changed-files@v23
-      id: 'chart-changed'
+      uses: tj-actions/changed-files@v35
+      id: 'chartChanged'
       with:
         files: |
-          ${{ inputs.chart_name }}
+          ${{ inputs.chart_dir }}
+    - run: >
+        echo 'INFO: check changes result: "${{ steps.chartChanged.outputs.any_modified }}"'
 
-    - name: "Bump Chart Version"
-      id: bump
-      if: github.actor != 'first-mate-bot' && steps.chart-changed.outputs.any_modified == 'true'
-      env:
-        BUMP_STRATEGY: ${{ inputs.bump_strategy }}
-        CHART_NAME: ${{ inputs.chart_name }}
-      shell: bash
-      run: |
-        entrypoint="import sys;
-        import subprocess;
-        from pathlib import Path;
-        MAIN_SCRIPT = Path(r'${GITHUB_ACTION_PATH}') / 'auto_bump' / 'main.py';
-        proc = subprocess.run([sys.executable, str(MAIN_SCRIPT)]);
-        sys.exit(proc.returncode)
-        "
-        if [ "$RUNNER_OS" == "Windows" ]; then
-          echo $entrypoint | python
-        else
-          echo $entrypoint | python3
-        fi
-        echo "::set-output name=version_bumped::true"
+    - name: Read Helm Chart
+      if: steps.chartChanged.outputs.any_modified == 'true'
+      id: readChart
+      uses: jacobtomlinson/gha-read-helm-chart@0.1.3
+      with:
+        path: ${{ inputs.chart_dir }}
+    - if: steps.chartChanged.outputs.any_modified == 'true'
+      run: >
+        echo 'INFO: chart name: "${{ steps.readChart.outputs.name }}"'
+        echo 'INFO: chart version: "${{ steps.readChart.outputs.version }}"'
+
+    - uses: mukunku/tag-exists-action@v1.2.0
+      if: steps.chartChanged.outputs.any_modified == 'true'
+      id: checkTag
+      with: 
+        tag: ${{ format '{0}-{1}' steps.readChart.outputs.name, steps.readChart.outputs.version }}
+    - run: >
+        echo 'INFO: check tag exists result: "${{ steps.checkTag.outputs.exists }}"'
+
+    - name: Bump a Helm Chart Version Locally
+      if: steps.chartChanged.outputs.any_modified == 'true' && steps.checkTag.outputs.exists == 'true'
+      uses: explorium-ai/bump-helm-chart-action@v2.0.0
+      with:
+        chart-path: ${{ inputs.chart_dir }}
+        app_version: true
+        level: ${{ inputs.bump_strategy }}
 
     - name: "Check For Bump"
       id: review
-      if: github.actor != 'first-mate-bot' && steps.chart-changed.outputs.any_modified == 'true'
+      if: steps.chartChanged.outputs.any_modified == 'true' && steps.checkTag.outputs.exists == 'true'
       env:
         BUMP_STRATEGY: ${{ inputs.bump_strategy }}
-        FIRST_MATE_MESSAGE: |
+        BUMP_MESSAGE: |
           cat << EOF
           Bumped Helm Chart Version From "$FIRST_MATE_OLD_VERSION" to "$FIRST_MATE_NEW_VERSION"
           
           Changes committed by ${{ github.actor }} in commit: ${{ github.event.after }} altered the Helm Chart.
           I updated the Chart.yaml file using the "BUMP_STRATEGY" strategy.
           
-          Signed-off-by: first-mate-bot[bot] <bot@firstmate.dev>
+          Signed-off-by: github-bot[bot] <bot@github.com>
           EOF
 
       run: |
         if [[`git status --porcelain` ]]; then
-          git config --local user.name "first-mate-bot"
-          git config --local user.email "bot@firstmate.dev"
+          git config --local user.name "github-bot"
+          git config --local user.email "bot@github.com"
           git add -A
-          git commit -m "$FIRST_MATE_MESSAGE"
+          git commit -m "$BUMP_MESSAGE"
 
       shell: bash

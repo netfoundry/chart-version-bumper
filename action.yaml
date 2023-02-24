@@ -39,7 +39,7 @@ runs:
     - name: Read Helm Chart Before Bump
       if: steps.chartChanged.outputs.any_modified == 'true'
       id: readChartBefore
-      uses: jacobtomlinson/gha-read-helm-chart@0.1.3
+      uses: netfoundry/helm-metadata-action@main
       with:
         path: ${{ inputs.chart_dir }}
     - name: Print Helm Chart Version
@@ -62,7 +62,7 @@ runs:
 
     - name: Bump the Helm Chart Version
       if: steps.chartChanged.outputs.any_modified == 'true' && steps.checkTag.outputs.exists == 'true'
-      uses: netfoundry/bump-helm-chart-action@main
+      uses: netfoundry/helm-chart-pybump-action@main
       with:
         chart-path: ${{ inputs.chart_dir }}
         app_version: false  # only bump chart version, not appVersion
@@ -71,7 +71,7 @@ runs:
     - name: Read Helm Chart After Bump
       if: steps.chartChanged.outputs.any_modified == 'true' && steps.checkTag.outputs.exists == 'true'
       id: readChartAfter
-      uses: jacobtomlinson/gha-read-helm-chart@0.1.3
+      uses: netfoundry/helm-metadata-action@main
       with:
         path: ${{ inputs.chart_dir }}
     - name: Print Helm Chart Version
@@ -99,7 +99,7 @@ runs:
 
     - name: Commit Bump if Changed
       if: steps.chartChanged.outputs.any_modified == 'true' && steps.checkTag.outputs.exists == 'true'
-      uses: netfoundry/action-git-push@main
+      uses: netfoundry/git-push-action@main
       with:
         email: ${{ github.actor }}@github.com
         name: ${{ github.actor }}

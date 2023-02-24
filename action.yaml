@@ -62,7 +62,7 @@ runs:
 
     - name: Bump the Helm Chart Version
       if: steps.chartChanged.outputs.any_modified == 'true' && steps.checkTag.outputs.exists == 'true'
-      uses: explorium-ai/bump-helm-chart-action@v2.0.0
+      uses: netfoundry/bump-helm-chart-action@main
       with:
         chart-path: ${{ inputs.chart_dir }}
         app_version: false  # only bump chart version, not appVersion

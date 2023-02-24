@@ -63,7 +63,7 @@ runs:
       uses: explorium-ai/bump-helm-chart-action@v2.0.0
       with:
         chart-path: ${{ inputs.chart_dir }}
-        app_version: true
+        app_version: false  # only bump chart version, not appVersion
         level: ${{ inputs.bump_strategy }}
 
     - name: "Check For Bump"
@@ -76,15 +76,18 @@ runs:
           Bumped Helm Chart Version From "$FIRST_MATE_OLD_VERSION" to "$FIRST_MATE_NEW_VERSION"
           
           Changes committed by ${{ github.actor }} in commit: ${{ github.event.after }} altered the Helm Chart.
-          I updated the Chart.yaml file using the "BUMP_STRATEGY" strategy.
+          I updated the Chart.yaml file using the "${BUMP_STRATEGY}" strategy.
           
           Signed-off-by: github-bot[bot] <bot@github.com>
           EOF
 
+    - name: Commit Bump if Changed
+      if: steps.chartChanged.outputs.any_modified == 'true' && steps.checkTag.outputs.exists == 'true'
       run: |
-        if [[`git status --porcelain` ]]; then
+        if [[ -n "$(git status --porcelain)" ]]; then
           git config --local user.name "github-bot"
           git config --local user.email "bot@github.com"
           git add -A
           git commit -m "$BUMP_MESSAGE"
+        fi
       shell: bash

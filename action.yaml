@@ -99,7 +99,7 @@ runs:
 
     - name: Commit Bump if Changed
       if: steps.chartChanged.outputs.any_modified == 'true' && steps.checkTag.outputs.exists == 'true'
-      uses: actions-x/commit@v6
+      uses: netfoundry/action-git-push@main
       with:
         email: ${{ github.actor }}@github.com
         name: ${{ github.actor }}

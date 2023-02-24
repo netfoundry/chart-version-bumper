@@ -37,24 +37,27 @@ runs:
         echo 'INFO: check changes result: "${{ steps.chartChanged.outputs.any_modified }}"'
       shell: bash
 
-    - name: Read Helm Chart
+    - name: Read Helm Chart Before Bump
       if: steps.chartChanged.outputs.any_modified == 'true'
-      id: readChart
+      id: readChartBefore
       uses: jacobtomlinson/gha-read-helm-chart@0.1.3
       with:
         path: ${{ inputs.chart_dir }}
-    - if: steps.chartChanged.outputs.any_modified == 'true'
+    - name: Print Helm Chart Version
+      if: steps.chartChanged.outputs.any_modified == 'true'
       run: >
-        echo 'INFO: chart name: "${{ steps.readChart.outputs.name }}"'
-        echo 'INFO: chart version: "${{ steps.readChart.outputs.version }}"'
+        echo 'INFO: chart name: "${{ steps.readChartBefore.outputs.name }}"'
+        echo 'INFO: chart version before bump: "${{ steps.readChartBefore.outputs.version }}"'
       shell: bash
 
-    - uses: mukunku/tag-exists-action@v1.2.0
+    - name: Check if a Release Tag Exists
+      uses: mukunku/tag-exists-action@v1.2.0
       if: steps.chartChanged.outputs.any_modified == 'true'
       id: checkTag
       with: 
-        tag: ${{ format ('{0}-{1}', steps.readChart.outputs.name, steps.readChart.outputs.version) }}
-    - run: >
+        tag: ${{ format ('{0}-{1}', steps.readChartBefore.outputs.name, steps.readChartBefore.outputs.version) }}
+    - name: Print Release Tag Check Result
+      run: >
         echo 'INFO: check tag exists result: "${{ steps.checkTag.outputs.exists }}"'
       shell: bash
 
@@ -66,28 +69,42 @@ runs:
         app_version: false  # only bump chart version, not appVersion
         level: ${{ inputs.bump_strategy }}
 
-    - name: "Check For Bump"
-      id: review
+    - name: Read Helm Chart After Bump
       if: steps.chartChanged.outputs.any_modified == 'true' && steps.checkTag.outputs.exists == 'true'
-      env:
-        BUMP_STRATEGY: ${{ inputs.bump_strategy }}
-        BUMP_MESSAGE: |
-          cat << EOF
-          Bumped Helm Chart Version From "$FIRST_MATE_OLD_VERSION" to "$FIRST_MATE_NEW_VERSION"
-          
-          Changes committed by ${{ github.actor }} in commit: ${{ github.event.after }} altered the Helm Chart.
-          I updated the Chart.yaml file using the "${BUMP_STRATEGY}" strategy.
-          
-          Signed-off-by: github-bot[bot] <bot@github.com>
-          EOF
+      id: readChartAfter
+      uses: jacobtomlinson/gha-read-helm-chart@0.1.3
+      with:
+        path: ${{ inputs.chart_dir }}
+    - name: Print Helm Chart Version
+      if: steps.chartChanged.outputs.any_modified == 'true' && steps.checkTag.outputs.exists == 'true'
+      run: >
+        echo 'INFO: chart name: "${{ steps.readChartAfter.outputs.name }}"'
+        echo 'INFO: chart version after bump: "${{ steps.readChartAfter.outputs.version }}"'
+      shell: bash
+
+    - name: Compose Bump Message if Changed
+      id: bumpMessage
+      if: steps.chartChanged.outputs.any_modified == 'true' && steps.checkTag.outputs.exists == 'true'
+      run: |
+        echo "bump_message<<'OUTER_EOF'" >> $GITHUB_OUTPUT
+        cat <<'INNER_EOF' >> $GITHUB_OUTPUT
+        Bumped Helm Chart Version From "${{ steps.readChartBefore.outputs.version }}" to "${{ steps.readChartAfter.outputs.version }}"
+        
+        Changes committed by ${{ github.actor }} in commit: ${{ github.event.after }} altered the Helm Chart.
+        I updated the "version" in Chart.yaml file using the "${{ inputs.bump_strategy }}" strategy.
+        
+        Signed-off-by: github-bot[bot] <bot@github.com>
+        INNER_EOF
+        echo "OUTER_EOF" >> $GITHUB_OUTPUT
+      shell: bash
 
     - name: Commit Bump if Changed
       if: steps.chartChanged.outputs.any_modified == 'true' && steps.checkTag.outputs.exists == 'true'
       run: |
         if [[ -n "$(git status --porcelain)" ]]; then
-          git config --local user.name "github-bot"
-          git config --local user.email "bot@github.com"
+          git config --local user.name "${{ github.actor }}"
+          git config --local user.email "${{ github.actor }}@github.com"
           git add -A
-          git commit -m "$BUMP_MESSAGE"
+          git commit -m "${{ steps.bumpMessage.outputs.bump_message }}"
         fi
       shell: bash

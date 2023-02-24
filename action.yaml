@@ -86,7 +86,7 @@ runs:
       id: bumpMessage
       if: steps.chartChanged.outputs.any_modified == 'true' && steps.checkTag.outputs.exists == 'true'
       run: |
-        echo "bump_message<<'OUTER_EOF'" >> $GITHUB_OUTPUT
+        echo "bump_message<<OUTER_EOF" >> $GITHUB_OUTPUT
         cat <<'INNER_EOF' >> $GITHUB_OUTPUT
         Bumped Helm Chart Version From "${{ steps.readChartBefore.outputs.version }}" to "${{ steps.readChartAfter.outputs.version }}"
         

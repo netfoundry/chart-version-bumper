@@ -35,6 +35,7 @@ runs:
           ${{ inputs.chart_dir }}
     - run: >
         echo 'INFO: check changes result: "${{ steps.chartChanged.outputs.any_modified }}"'
+      shell: bash
 
     - name: Read Helm Chart
       if: steps.chartChanged.outputs.any_modified == 'true'
@@ -46,6 +47,7 @@ runs:
       run: >
         echo 'INFO: chart name: "${{ steps.readChart.outputs.name }}"'
         echo 'INFO: chart version: "${{ steps.readChart.outputs.version }}"'
+      shell: bash
 
     - uses: mukunku/tag-exists-action@v1.2.0
       if: steps.chartChanged.outputs.any_modified == 'true'
@@ -54,6 +56,7 @@ runs:
         tag: ${{ format '{0}-{1}' steps.readChart.outputs.name, steps.readChart.outputs.version }}
     - run: >
         echo 'INFO: check tag exists result: "${{ steps.checkTag.outputs.exists }}"'
+      shell: bash
 
     - name: Bump a Helm Chart Version Locally
       if: steps.chartChanged.outputs.any_modified == 'true' && steps.checkTag.outputs.exists == 'true'
@@ -84,5 +87,4 @@ runs:
           git config --local user.email "bot@github.com"
           git add -A
           git commit -m "$BUMP_MESSAGE"
-
       shell: bash

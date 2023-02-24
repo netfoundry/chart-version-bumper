@@ -53,7 +53,7 @@ runs:
       if: steps.chartChanged.outputs.any_modified == 'true'
       id: checkTag
       with: 
-        tag: ${{ format '{0}-{1}' steps.readChart.outputs.name, steps.readChart.outputs.version }}
+        tag: ${{ format ('{0}-{1}', steps.readChart.outputs.name, steps.readChart.outputs.version) }}
     - run: >
         echo 'INFO: check tag exists result: "${{ steps.checkTag.outputs.exists }}"'
       shell: bash

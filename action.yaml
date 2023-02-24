@@ -104,3 +104,4 @@ runs:
         email: ${{ github.actor }}@github.com
         name: ${{ github.actor }}
         message: ${{ steps.bumpMessage.outputs.bump_message }}
+        branch: ${{ github.head_ref || github.ref_name }}

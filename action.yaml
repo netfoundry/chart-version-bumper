@@ -21,7 +21,6 @@ outputs:
 
 runs:
   using: composite
-
   steps:
     - uses: actions/checkout@v3
       with:
@@ -61,7 +60,7 @@ runs:
         echo 'INFO: check tag exists result: "${{ steps.checkTag.outputs.exists }}"'
       shell: bash
 
-    - name: Bump a Helm Chart Version Locally
+    - name: Bump the Helm Chart Version
       if: steps.chartChanged.outputs.any_modified == 'true' && steps.checkTag.outputs.exists == 'true'
       uses: explorium-ai/bump-helm-chart-action@v2.0.0
       with:
@@ -100,11 +99,8 @@ runs:
 
     - name: Commit Bump if Changed
       if: steps.chartChanged.outputs.any_modified == 'true' && steps.checkTag.outputs.exists == 'true'
-      run: |
-        if [[ -n "$(git status --porcelain)" ]]; then
-          git config --local user.name "${{ github.actor }}"
-          git config --local user.email "${{ github.actor }}@github.com"
-          git add -A
-          git commit -m "${{ steps.bumpMessage.outputs.bump_message }}"
-        fi
-      shell: bash
+      uses: actions-x/commit@v6
+      with:
+        email: ${{ github.actor }}@github.com
+        name: ${{ github.actor }}
+        message: ${{ steps.bumpMessage.outputs.bump_message }}

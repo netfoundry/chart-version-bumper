@@ -87,7 +87,7 @@ runs:
       run: |
         echo "bump_message<<OUTER_EOF" >> $GITHUB_OUTPUT
         cat <<'INNER_EOF' >> $GITHUB_OUTPUT
-        Bumped Helm Chart Version From "${{ steps.readChartBefore.outputs.version }}" to "${{ steps.readChartAfter.outputs.version }}"
+        Bumped "${{ steps.readChartAfter.outputs.name }}" version from "${{ steps.readChartBefore.outputs.version }}" to "${{ steps.readChartAfter.outputs.version }}".
         
         Changes committed by ${{ github.actor }} in commit: ${{ github.event.after }} altered the Helm Chart.
         I updated the "version" in Chart.yaml file using the "${{ inputs.bump_strategy }}" strategy.

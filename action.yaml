@@ -81,6 +81,16 @@ runs:
         echo 'INFO: chart version after bump: "${{ steps.readChartAfter.outputs.version }}"'
       shell: bash
 
+    - name: Regenerate Helm Docs if Version Bumped
+      id: bumpMessage
+      if: steps.chartChanged.outputs.any_modified == 'true' && steps.checkTag.outputs.exists == 'true'
+      uses: netfoundry/helm-docs-action@v1
+      with:
+        # recursively generate README.md for all charts in comma-sep list of
+        # parent dirs
+        search-roots: ${{ inputs.chart_dir }}
+        git-push: "false"
+
     - name: Compose Bump Message if Changed
       id: bumpMessage
       if: steps.chartChanged.outputs.any_modified == 'true' && steps.checkTag.outputs.exists == 'true'

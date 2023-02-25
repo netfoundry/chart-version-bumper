@@ -26,12 +26,17 @@ runs:
       with:
         fetch-depth: '2'
 
-    - name: Check if Chart Changed
+    - name: Fetch latest release version
+      id: latest-release
+      uses: netfoundry/latest-release-action@main
+
+    - name: Check if Chart Changed Since Latest Release
       uses: tj-actions/changed-files@v35
       id: chartChanged
       with:
         files: |
           ${{ inputs.chart_dir }}
+        base_sha: ${{ steps.latest-release.outputs.commit-sha }}
     - run: >
         echo 'INFO: check changes result: "${{ steps.chartChanged.outputs.any_modified }}"'
       shell: bash

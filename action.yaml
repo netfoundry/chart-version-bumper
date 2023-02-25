@@ -26,9 +26,9 @@ runs:
       with:
         fetch-depth: '2'
 
-    - name: 'Check if Chart Changed'
+    - name: Check if Chart Changed
       uses: tj-actions/changed-files@v35
-      id: 'chartChanged'
+      id: chartChanged
       with:
         files: |
           ${{ inputs.chart_dir }}

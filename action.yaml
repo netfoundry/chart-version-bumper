@@ -88,7 +88,7 @@ runs:
 
     - name: Regenerate Helm Docs if Version Bumped
       if: steps.chartChanged.outputs.any_modified == 'true' && steps.checkTag.outputs.exists == 'true'
-      uses: netfoundry/helm-docs-action@v1
+      uses: netfoundry/helm-docs-action@main
       with:
         # recursively generate README.md for all charts in comma-sep list of
         # parent dirs

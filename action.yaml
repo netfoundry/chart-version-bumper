@@ -28,7 +28,7 @@ runs:
 
     - name: Fetch latest release version
       id: latest-release
-      uses: netfoundry/latest-release-action@main
+      uses: netfoundry/latest-release-action@filter-tags
 
     - name: Check if Chart Changed Since Latest Release
       uses: tj-actions/changed-files@v35

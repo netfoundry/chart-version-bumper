@@ -26,9 +26,23 @@ runs:
       with:
         fetch-depth: '2'
 
-    - name: Fetch latest release version
+    - name: Read Helm Chart Before Bump
+      id: readChartBefore
+      uses: netfoundry/helm-metadata-action@main
+      with:
+        path: ${{ inputs.chart_dir }}
+
+    - name: Print Helm Chart Version
+      run: >
+        echo 'INFO: chart name: "${{ steps.readChartBefore.outputs.name }}"'
+        echo 'INFO: chart version before bump: "${{ steps.readChartBefore.outputs.version }}"'
+      shell: bash
+
+    - name: Fetch latest release version of this chart
       id: latest-release
       uses: netfoundry/latest-release-action@filter-tags
+      with:
+        tag-prefix: ${{ format ('{0}-', steps.readChartBefore.outputs.name) }}
 
     - name: Check if Chart Changed Since Latest Release
       uses: tj-actions/changed-files@v35
@@ -39,19 +53,6 @@ runs:
         base_sha: ${{ steps.latest-release.outputs.commit-sha }}
     - run: >
         echo 'INFO: check changes result: "${{ steps.chartChanged.outputs.any_modified }}"'
-      shell: bash
-
-    - name: Read Helm Chart Before Bump
-      if: steps.chartChanged.outputs.any_modified == 'true'
-      id: readChartBefore
-      uses: netfoundry/helm-metadata-action@main
-      with:
-        path: ${{ inputs.chart_dir }}
-    - name: Print Helm Chart Version
-      if: steps.chartChanged.outputs.any_modified == 'true'
-      run: >
-        echo 'INFO: chart name: "${{ steps.readChartBefore.outputs.name }}"'
-        echo 'INFO: chart version before bump: "${{ steps.readChartBefore.outputs.version }}"'
       shell: bash
 
     - name: Check if a Release Tag Exists

@@ -40,7 +40,7 @@ runs:
 
     - name: Fetch latest release version of this chart
       id: latest-release
-      uses: netfoundry/latest-release-action@filter-tags
+      uses: netfoundry/latest-release-action@main
       with:
         tag-prefix: ${{ format ('{0}-', steps.readChartBefore.outputs.name) }}
 

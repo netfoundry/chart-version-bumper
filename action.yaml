@@ -121,3 +121,5 @@ runs:
         message: |
           ${{ steps.bumpMessage.outputs.bump_message }}
         branch: ${{ github.head_ref || github.ref_name }}
+        # use the proposed changes in case of conflict during rebase on the base branch
+        strategy: theirs

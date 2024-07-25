@@ -45,7 +45,7 @@ runs:
         tag-prefix: ${{ format ('{0}-', steps.readChartBefore.outputs.name) }}
 
     - name: Check if Chart Changed Since Latest Release
-      uses: tj-actions/changed-files@v35
+      uses: tj-actions/changed-files@v44
       id: chartChanged
       with:
         files: |

@@ -26,6 +26,7 @@ runs:
       with:
         # we need all history to reliably find the latest release tag for each chart
         fetch-depth: '0'
+        fetch-tags: 'true'
 
     - name: Read Helm Chart Before Bump
       id: readChartBefore
